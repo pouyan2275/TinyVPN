@@ -21,7 +21,7 @@ var cts = new CancellationTokenSource();
 
 var profiles = SingBox.GetProfilesFromSubscribe(url);
 
-Console.WriteLine($"{profiles.Count} Profiles Founded");
+Console.WriteLine($"{profiles.Count} Profiles Founded ");
 Console.WriteLine($"Select {profileTake} Profiles From {profiles.Count} Profiles");
 
 var freePorts = Network.GetFreePorts(profileTake + 1);
