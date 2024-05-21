@@ -15,8 +15,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="Pouyan" Version="1.0.0" />
     <PackageReference Include="SingBoxLib" Version="1.1.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Pouyan">
+      <HintPath>..\..\Pouyan\Pouyan\bin\Release\net8.0\Pouyan.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
