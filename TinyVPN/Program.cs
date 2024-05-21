@@ -11,7 +11,7 @@ int index,counterProfile;
 string url;
 List<Pouyan.Model.TestResult> orderedProfiles;
 //variables
-var vpn = new Vpn();
+
 var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json");
@@ -23,15 +23,15 @@ var singbox = new SingBox("./sing-box.exe",Pouyan.Model.Inbounds.EnumInbounds.Ht
 
 var cts = new CancellationTokenSource();
 Random rng = new Random();
-profiles = vpn.TakeProfiles(url).OrderBy(x=> rng.Next()).ToList();
+profiles = Vpn.TakeProfiles(url).OrderBy(x=> rng.Next()).ToList();
 if (counterProfile > profiles.Count)
     counterProfile = profiles.Count;
 index = 0;
 Console.WriteLine($"doing {counterProfile} test profiles");
 do
 {
-    profilesResults = vpn.TestProfiles(index, counterProfile, singbox, profiles);
-    testedProfiles = vpn.CheckProfiles(profilesResults);
+    profilesResults = Vpn.TestProfiles(index, counterProfile, singbox, profiles);
+    testedProfiles = Vpn.CheckProfiles(profilesResults);
     orderedProfiles = testedProfiles.Where(p => p.Result!.Delay > 0).OrderBy(p => p.Result!.Delay).ToList();
     index += counterProfile;
     if (index > profiles.Count)
@@ -46,7 +46,7 @@ if (orderedProfiles.Count == 0)
 Console.WriteLine("Profiles Work Well:");
 orderedProfiles.ForEach(p => { Console.WriteLine($"Name: {p.Profile.Name} Delay: {p.Result!.Delay}"); });
 
-singbox.OutBounds = vpn.GetOutbounds(orderedProfiles[0].Profile);
+singbox.OutBounds = Vpn.GetOutbounds(orderedProfiles[0].Profile);
 
 Console.WriteLine($"Connecting To {orderedProfiles[0].Profile.Name}");
 var tunneling = singbox.StartTunneling(cts);

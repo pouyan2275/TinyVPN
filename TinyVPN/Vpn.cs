@@ -1,16 +1,11 @@
 ﻿using SingBoxLib.Configuration.Outbound.Abstract;
 using SingBoxLib.Parsing;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Pouyan
 {
     public class Vpn
     {
-        public List<Task<Model.TestResult>> TestProfiles(int index, int count, SingBox singbox, List<ProfileItem> profiles)
+        public static List<Task<Model.TestResult>> TestProfiles(int index, int count, SingBox singbox, List<ProfileItem> profiles)
         {
             var testResults = new List<Task<Pouyan.Model.TestResult>>();
             Console.WriteLine($"Start Test Profiles...");
@@ -23,20 +18,20 @@ namespace Pouyan
             });
             return testResults;
         }
-
-        public Model.TestResult[] CheckProfiles(List<Task<Pouyan.Model.TestResult>> profilesResults)
+        
+        public static Model.TestResult[] CheckProfiles(List<Task<Pouyan.Model.TestResult>> profilesResults)
         {
             var testedProfiles = Task.WhenAll(profilesResults).Result;
             Console.WriteLine("Test Result:");
             testedProfiles.ToList().ForEach(p => Console.WriteLine($"{p.Profile.Name} - Delay:{p.Result!.Delay}"));
             return testedProfiles;
         }
-        public List<OutboundConfig> GetOutbounds(ProfileItem profile)
+        public static List<OutboundConfig> GetOutbounds(ProfileItem profile)
         {
             return new List<OutboundConfig> { profile.ToOutboundConfig() };
         }
 
-        public List<ProfileItem> TakeProfiles(string url)
+        public static List<ProfileItem> TakeProfiles(string url)
         {
             var profiles = SingBox.GetProfilesFromSubscribe(url);
 
