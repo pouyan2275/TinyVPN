@@ -19,7 +19,7 @@ var configuration = builder.Build();
 counterProfile = int.Parse(configuration["count_profile"]!);
 url = configuration["subscribe_url"]!;
 
-var singbox = new SingBox("./sing-box.exe",Pouyan.Model.Inbounds.EnumInbounds.Mixed);
+var singbox = new SingBox("./sing-box.exe",Pouyan.Model.Inbounds.EnumInbounds.Http);
 
 var cts = new CancellationTokenSource();
 Random rng = new Random();
