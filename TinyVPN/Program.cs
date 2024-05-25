@@ -47,7 +47,7 @@ if (orderedProfiles.Count == 0)
 Console.WriteLine("Profiles Work Well:");
 orderedProfiles.ForEach(p => { Console.WriteLine($"Name: {p.Profile.Name} Delay: {p.Result!.Delay}"); });
 
-singbox.OutBounds = Vpn.GetOutbounds(orderedProfiles[0].Profile);
+singbox.OutBounds = orderedProfiles[0].Profile.ToOutboundConfig();
 
 Console.WriteLine($"Connecting To {orderedProfiles[0].Profile.Name}");
 var tunneling = singbox.StartTunneling(cts);
