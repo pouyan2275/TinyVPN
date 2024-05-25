@@ -1,14 +1,16 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Pouyan;
+using Pouyan.Singbox;
+using Pouyan.Singbox.Model;
 using SingBoxLib.Parsing;
 
 //variables
-Pouyan.Model.TestResult[] testedProfiles;
-List<Task<Pouyan.Model.TestResult>> profilesResults;
+TestResult[] testedProfiles;
+List<Task<TestResult>> profilesResults;
 List<ProfileItem> profiles;
 int index, counterProfile;
 string url;
-List<Pouyan.Model.TestResult> orderedProfiles;
+List<TestResult> orderedProfiles;
 //variables
 
 var builder = new ConfigurationBuilder()
@@ -18,7 +20,7 @@ var configuration = builder.Build();
 counterProfile = int.Parse(configuration["count_profile"]!);
 url = configuration["subscribe_url"]!;
 
-var singbox = new SingBox("./sing-box.exe",SingboxTypes.Inbounds.Http);
+var singbox = new SingBox("./sing-box.exe",Types.Inbounds.Http);
 
 var cts = new CancellationTokenSource();
 Random rng = new();

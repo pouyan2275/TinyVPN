@@ -1,13 +1,14 @@
-﻿using SingBoxLib.Configuration.Outbound.Abstract;
+﻿using Pouyan.Singbox.Model;
+using SingBoxLib.Configuration.Outbound.Abstract;
 using SingBoxLib.Parsing;
 
 namespace Pouyan
 {
     public class Vpn
     {
-        public static List<Task<Model.TestResult>> TestProfiles(int index, int count, SingBox singbox, List<ProfileItem> profiles)
+        public static List<Task<TestResult>> TestProfiles(int index, int count, SingBox singbox, List<ProfileItem> profiles)
         {
-            var testResults = new List<Task<Pouyan.Model.TestResult>>();
+            var testResults = new List<Task<TestResult>>();
             Console.WriteLine($"Start Test Profiles...");
             var freePorts = Network.GetFreePorts(count + 1);
             int i = 0;
@@ -19,7 +20,7 @@ namespace Pouyan
             return testResults;
         }
         
-        public static Model.TestResult[] CheckProfiles(List<Task<Pouyan.Model.TestResult>> profilesResults)
+        public static TestResult[] CheckProfiles(List<Task<TestResult>> profilesResults)
         {
             var testedProfiles = Task.WhenAll(profilesResults).Result;
             Console.WriteLine("Test Result:");
