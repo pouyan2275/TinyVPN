@@ -1,13 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Pouyan;
-using SingBoxLib.Configuration.Outbound.Abstract;
 using SingBoxLib.Parsing;
 
 //variables
 Pouyan.Model.TestResult[] testedProfiles;
 List<Task<Pouyan.Model.TestResult>> profilesResults;
 List<ProfileItem> profiles;
-int index,counterProfile;
+int index, counterProfile;
 string url;
 List<Pouyan.Model.TestResult> orderedProfiles;
 //variables
@@ -19,11 +18,13 @@ var configuration = builder.Build();
 counterProfile = int.Parse(configuration["count_profile"]!);
 url = configuration["subscribe_url"]!;
 
-var singbox = new SingBox("./sing-box.exe",Pouyan.Model.Inbounds.EnumInbounds.Http);
+var singbox = new SingBox("./sing-box.exe",SingboxTypes.Inbounds.Http);
 
 var cts = new CancellationTokenSource();
-Random rng = new Random();
-profiles = Vpn.TakeProfiles(url).OrderBy(x=> rng.Next()).ToList();
+Random rng = new();
+
+profiles = [.. Vpn.TakeProfiles(url).OrderBy(x => rng.Next())];
+
 if (counterProfile > profiles.Count)
     counterProfile = profiles.Count;
 index = 0;
