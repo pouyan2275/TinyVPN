@@ -26,10 +26,6 @@ namespace Pouyan
             testedProfiles.ToList().ForEach(p => Console.WriteLine($"{p.Profile.Name} - Delay:{p.Result!.Delay}"));
             return testedProfiles;
         }
-        public static OutboundConfig GetOutbounds(ProfileItem profile)
-        {
-            return  profile.ToOutboundConfig();
-        }
 
         public static List<ProfileItem> TakeProfiles(string url)
         {
