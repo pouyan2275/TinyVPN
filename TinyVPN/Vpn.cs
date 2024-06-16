@@ -1,4 +1,5 @@
-﻿using Pouyan.Singbox.Model;
+﻿using Pouyan.SingBox.Model;
+using Pouyan;
 using SingBoxLib.Configuration.Outbound.Abstract;
 using SingBoxLib.Parsing;
 
@@ -6,11 +7,11 @@ namespace Pouyan
 {
     public class Vpn
     {
-        public static List<Task<TestResult>> TestProfiles(int index, int count, SingBox singbox, List<ProfileItem> profiles)
+        public static List<Task<TestResult>> TestProfiles(int index, int count, SingBox.Build singbox, List<ProfileItem> profiles)
         {
             var testResults = new List<Task<TestResult>>();
             Console.WriteLine($"Start Test Profiles...");
-            var freePorts = Network.GetFreePorts(count + 1);
+            var freePorts = Pouyan.Network.Tools.GetFreePorts(count + 1);
             int i = 0;
             profiles.GetRange(index, count).ForEach(p =>
             {
@@ -30,7 +31,7 @@ namespace Pouyan
 
         public static List<ProfileItem> TakeProfiles(string url)
         {
-            var profiles = SingBox.GetProfilesFromSubscribe(url);
+            var profiles = SingBox.Build.GetProfilesFromSubscribe(url);
 
             Console.WriteLine($"{profiles.Count} Profiles Founded ");
             return profiles;

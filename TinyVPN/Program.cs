@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Pouyan;
-using Pouyan.Singbox;
-using Pouyan.Singbox.Model;
+using Pouyan.SingBox.Model;
 using SingBoxLib.Parsing;
 
 //variables
@@ -20,7 +19,7 @@ var configuration = builder.Build();
 counterProfile = int.Parse(configuration["count_profile"]!);
 url = configuration["subscribe_url"]!;
 
-var singbox = new SingBox("./sing-box.exe",Types.Inbounds.Http);
+var singbox = new Pouyan.SingBox.Build("./sing-box.exe", Types.Inbounds.Http);
 
 var cts = new CancellationTokenSource();
 Random rng = new();
@@ -62,5 +61,5 @@ tunneling.Wait();
 static void OnProcessExit(CancellationTokenSource cts)
 {
     cts.Cancel();
-    Network.DisableProxy();
+    Pouyan.Network.Tools.DisableProxy();
 }
