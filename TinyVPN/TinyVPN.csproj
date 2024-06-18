@@ -15,8 +15,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="Pouyan.Network" Version="1.0.0.1" />
-    <PackageReference Include="Pouyan.SingBox" Version="1.0.0" />
+    <PackageReference Include="Pouyan.Network" Version="1.0.0.2" />
+    <PackageReference Include="Pouyan.SingBox" Version="1.0.0.1" />
     <PackageReference Include="SingBoxLib" Version="1.1.11" />
   </ItemGroup>
   <ItemGroup>

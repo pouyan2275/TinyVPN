@@ -10,6 +10,7 @@ List<ProfileItem> profiles;
 int index, counterProfile;
 string url;
 List<TestResult> orderedProfiles;
+Vpn vpn;
 //variables
 
 var builder = new ConfigurationBuilder()
@@ -19,12 +20,12 @@ var configuration = builder.Build();
 counterProfile = int.Parse(configuration["count_profile"]!);
 url = configuration["subscribe_url"]!;
 
-var singbox = new Pouyan.SingBox.Build("./sing-box.exe", Types.Inbounds.Http);
-
+var singbox = new Pouyan.SingBox.Client("./sing-box.exe", Pouyan.SingBox.Types.Inbounds.Http);
+vpn = new Vpn("./sing-box.exe");
 var cts = new CancellationTokenSource();
 Random rng = new();
 
-profiles = [.. Vpn.TakeProfiles(url).OrderBy(x => rng.Next())];
+profiles = [.. vpn.TakeProfiles(url).OrderBy(x => rng.Next())];
 
 if (counterProfile > profiles.Count)
     counterProfile = profiles.Count;
@@ -32,8 +33,8 @@ index = 0;
 Console.WriteLine($"doing {counterProfile} test profiles");
 do
 {
-    profilesResults = Vpn.TestProfiles(index, counterProfile, singbox, profiles);
-    testedProfiles = Vpn.CheckProfiles(profilesResults);
+    profilesResults = vpn.TestProfiles(index, counterProfile, singbox, profiles);
+    testedProfiles = vpn.CheckProfiles(profilesResults);
     orderedProfiles = testedProfiles.Where(p => p.Result!.Delay > 0).OrderBy(p => p.Result!.Delay).ToList();
     index += counterProfile;
     if (index > profiles.Count)
@@ -48,10 +49,8 @@ if (orderedProfiles.Count == 0)
 Console.WriteLine("Profiles Work Well:");
 orderedProfiles.ForEach(p => { Console.WriteLine($"Name: {p.Profile.Name} Delay: {p.Result!.Delay}"); });
 
-singbox.OutBounds = orderedProfiles[0].Profile;
-
 Console.WriteLine($"Connecting To {orderedProfiles[0].Profile.Name}");
-var tunneling = singbox.StartTunneling(cts);
+var tunneling = singbox.StartTunneling(cts, orderedProfiles[0].Profile);
 Console.WriteLine($"Connected");
 Console.CancelKeyPress += new ConsoleCancelEventHandler((e, s) => OnProcessExit(cts));
 AppDomain.CurrentDomain.ProcessExit += new EventHandler((s, e) => OnProcessExit(cts));
@@ -61,5 +60,5 @@ tunneling.Wait();
 static void OnProcessExit(CancellationTokenSource cts)
 {
     cts.Cancel();
-    Pouyan.Network.Tools.DisableProxy();
+    Pouyan.Network.Proxy.DisableProxy();
 }
