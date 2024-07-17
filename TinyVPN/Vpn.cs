@@ -5,31 +5,21 @@ namespace Pouyan
 {
     public class Vpn
     {
-        private static SingBox.Test? _testConfig;
+        private static SingBox.ProfileTester? _testConfig;
         public Vpn(string singBoxExecutablePath)
         {
-            _testConfig = new SingBox.Test(singBoxExecutablePath);
+            _testConfig = new SingBox.ProfileTester(singBoxExecutablePath);
         }
-        public List<Task<TestResult>> TestProfiles(int index, int count, SingBox.Client singbox, List<ProfileItem> profiles)
+        public async Task<IEnumerable<TestResult>> TestProfiles(int index, int count, List<ProfileItem> profiles)
         {
-            var testResults = new List<Task<TestResult>>();
             Console.WriteLine($"Start Test Profiles...");
-            var freePorts = Network.Port.GetFreePorts(count + 1);
-            int i = 0;
-            profiles.GetRange(index, count).ForEach(p =>
-            {
-                i++;
-                testResults.Add(_testConfig!.UrlTestAsync(p, freePorts[i],1000));
-            });
-            return testResults;
+            return await _testConfig!.UrlTestAsync(profiles.GetRange(index, count));
         }
         
-        public TestResult[] CheckProfiles(List<Task<TestResult>> profilesResults)
+        public void WriteTestResult(List<TestResult> profilesResults)
         {
-            var testedProfiles = Task.WhenAll(profilesResults).Result;
             Console.WriteLine("Test Result:");
-            testedProfiles.ToList().ForEach(p => Console.WriteLine($"{p.Profile.Name} - Delay:{p.Result!.Delay}"));
-            return testedProfiles;
+            profilesResults.ForEach(p => Console.WriteLine($"{p.Profile.Name} - Delay:{p.Result!.Delay}"));
         }
 
         public List<ProfileItem> TakeProfiles(string url)

@@ -4,8 +4,7 @@ using Pouyan.SingBox.Model;
 using SingBoxLib.Parsing;
 
 //variables
-TestResult[] testedProfiles;
-List<Task<TestResult>> profilesResults;
+List<TestResult> profilesResults;
 List<ProfileItem> profiles;
 int index, counterProfile;
 string url;
@@ -20,7 +19,8 @@ var configuration = builder.Build();
 counterProfile = int.Parse(configuration["count_profile"]!);
 url = configuration["subscribe_url"]!;
 
-var singbox = new Pouyan.SingBox.Client("./sing-box.exe", Pouyan.SingBox.Types.Inbounds.Http);
+var inbounds = Pouyan.SingBox.Inbound.CreateMixedInbound();
+var singbox = new Pouyan.SingBox.Tunnel("./sing-box.exe", [inbounds]);
 vpn = new Vpn("./sing-box.exe");
 var cts = new CancellationTokenSource();
 Random rng = new();
@@ -33,9 +33,9 @@ index = 0;
 Console.WriteLine($"doing {counterProfile} test profiles");
 do
 {
-    profilesResults = vpn.TestProfiles(index, counterProfile, singbox, profiles);
-    testedProfiles = vpn.CheckProfiles(profilesResults);
-    orderedProfiles = testedProfiles.Where(p => p.Result!.Delay > 0).OrderBy(p => p.Result!.Delay).ToList();
+    profilesResults = vpn.TestProfiles(index, counterProfile, profiles).Result.ToList();
+    vpn.WriteTestResult(profilesResults);
+    orderedProfiles = profilesResults.Where(p => p.Result!.Delay > 0).OrderBy(p => p.Result!.Delay).ToList();
     index += counterProfile;
     if (index > profiles.Count)
         index = profiles.Count;
@@ -50,11 +50,14 @@ Console.WriteLine("Profiles Work Well:");
 orderedProfiles.ForEach(p => { Console.WriteLine($"Name: {p.Profile.Name} Delay: {p.Result!.Delay}"); });
 
 Console.WriteLine($"Connecting To {orderedProfiles[0].Profile.Name}");
-var tunneling = singbox.StartTunneling(cts, orderedProfiles[0].Profile);
+var tunneling = singbox.StartAsync(orderedProfiles[0].Profile, cts, (sender , log) =>
+{
+    Console.WriteLine(log);
+});
 Console.WriteLine($"Connected");
 Console.CancelKeyPress += new ConsoleCancelEventHandler((e, s) => OnProcessExit(cts));
 AppDomain.CurrentDomain.ProcessExit += new EventHandler((s, e) => OnProcessExit(cts));
-tunneling.Wait();
+Console.ReadLine();
 
 
 static void OnProcessExit(CancellationTokenSource cts)
