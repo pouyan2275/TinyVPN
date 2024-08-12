@@ -68,15 +68,16 @@ Console.Title = $"Connected - {orderedProfiles[0].Profile.Name}";
 
 Console.WriteLine($"Connected");
 
-
 Console.CancelKeyPress += new ConsoleCancelEventHandler((e, s) => OnProcessExit(cts));
 AppDomain.CurrentDomain.ProcessExit += new EventHandler((s, e) => OnProcessExit(cts));
+
+await singbox.StartAsync(orderedProfiles[0].Profile, cts);
 Console.ReadLine();
 
 
 static void OnProcessExit(CancellationTokenSource cts)
 {
-    Pouyan.SingBox.Tunnel.CloseSingBox();
+    Pouyan.SingBox.Tunnel.CloseTunnel();
     cts.Cancel();
     Pouyan.Network.Proxy.DisableProxy();
 }
