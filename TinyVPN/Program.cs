@@ -22,7 +22,7 @@ Random rng = new();
 //variables
 
 
-
+Console.Title = "Connecting";
 var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json");
@@ -63,10 +63,9 @@ orderedProfiles.ForEach(p => { Console.WriteLine($"Name: {p.Profile.Name} Delay:
 
 Console.WriteLine($"Connecting To {orderedProfiles[0].Profile.Name}");
 
-var tunneling = singbox.StartAsync(orderedProfiles[0].Profile, cts, (sender , log) =>
-{
-    Console.WriteLine(log);
-});
+Console.Title = $"Connected - {orderedProfiles[0].Profile.Name}";
+
+
 Console.WriteLine($"Connected");
 
 
