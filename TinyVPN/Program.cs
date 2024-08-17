@@ -66,7 +66,7 @@ Console.WriteLine($"Connecting To {orderedProfiles[0].Profile.Name}");
 Console.Title = $"Connected - {orderedProfiles[0].Profile.Name}";
 
 
-Console.WriteLine($"Connected");
+Console.WriteLine($"Connected - {orderedProfiles[0].Profile.Name}");
 
 
 Console.CancelKeyPress += new ConsoleCancelEventHandler((e, s) => OnProcessExit(cts));
