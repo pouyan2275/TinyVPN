@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Pouyan;
+using Pouyan.Network;
 using Pouyan.SingBox;
 using Pouyan.SingBox.Model;
 using SingBoxLib.Parsing;
+using System.Diagnostics;
 
 //variables
 List<TestResult> profilesResults;
@@ -13,27 +15,25 @@ Vpn vpn = new Vpn();
 string singboxPath = "./singbox/sing-box.exe";
 var profileTester = new ProfileTester(singboxPath);
 var cts = new CancellationTokenSource();
-var inbounds = Pouyan.SingBox.Inbound.CreateMixedInbound(
+var builder = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json").Build();
+var setSystemProxy = bool.Parse(builder["system_proxy_on_start"]!);
+var inbounds = Inbound.CreateMixedInbound(
     listen:"127.0.0.1",
     listenPort: 3080,
-    true
+    setSystemProxy
     );
 Random rng = new();
 //variables
 
-
+Console.WriteLine($"Mixed: {inbounds.Listen}:{inbounds.ListenPort}");
 Console.Title = "Connecting";
-var builder = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json");
 
-var configuration = builder.Build();
-counterProfile = int.Parse(configuration["count_profile"]!);
-url = configuration["subscribe_url"]!;
+counterProfile = int.Parse(builder["count_profile"]!);
+url = builder["subscribe_url"]!;
 
-
-var singbox = new Pouyan.SingBox.Tunnel(singboxPath, [inbounds]);
-
+var singbox = new Tunnel(singboxPath, [inbounds]);
 
 List<ProfileItem> profiles = [.. vpn.TakeProfiles(url).OrderBy(x => rng.Next())];
 
@@ -62,22 +62,49 @@ Console.WriteLine("Profiles Work Well:");
 orderedProfiles.ForEach(p => { Console.WriteLine($"Name: {p.Profile.Name} Delay: {p.Result!.Delay}"); });
 
 Console.WriteLine($"Connecting To {orderedProfiles[0].Profile.Name}");
+string titleMessage = $"Connected - {orderedProfiles[0].Profile.Name} - ";
+titleMessage = setSystemProxy ? titleMessage + "Enable" : titleMessage + "Disable";
+Console.Title = titleMessage;
 
-Console.Title = $"Connected - {orderedProfiles[0].Profile.Name}";
 
-
-Console.WriteLine($"Connected - {orderedProfiles[0].Profile.Name}");
+Console.WriteLine($"Connected - {orderedProfiles[0].Profile.Name} - proxy is enable");
 
 Console.CancelKeyPress += new ConsoleCancelEventHandler((e, s) => OnProcessExit(cts));
 AppDomain.CurrentDomain.ProcessExit += new EventHandler((s, e) => OnProcessExit(cts));
 
-await singbox.StartAsync(orderedProfiles[0].Profile, cts);
-Console.ReadLine();
+singbox.StartAsync(orderedProfiles[0].Profile, cts);
+while (true)
+{
+    Console.WriteLine("Tip: \n" +
+        "\t1- Press 1 For Disable Proxy \n" +
+        "\t2- Press 2 For Enable Proxy \n" +
+        "\t3- Q for Exit");
+    var keyPressed = Console.ReadKey().Key;
+    switch (keyPressed)
+    {
+        case ConsoleKey.D1 :
+            Proxy.DisableProxy();
+            Console.WriteLine($"\nSytem Proxy is Disable");
+            Console.Title = $"Connected - {orderedProfiles[0].Profile.Name} - Disable";
+            break;
+        case ConsoleKey.D2 :
+            Proxy.EnableProxy(inbounds.Listen! , inbounds.ListenPort ?? 0);
+            Console.WriteLine($"\nsystem proxy is enable");
+            Console.Title = $"Connected - {orderedProfiles[0].Profile.Name} - Enable";
+            break;
+        case ConsoleKey.Q:
+            cts.Cancel();
+            return;
+        default:
+            Console.WriteLine();
+            break;
+    }
+}
 
 
 static void OnProcessExit(CancellationTokenSource cts)
 {
-    Pouyan.SingBox.Tunnel.CloseTunnel();
+    Tunnel.CloseTunnel();
     cts.Cancel();
-    Pouyan.Network.Proxy.DisableProxy();
+    Proxy.DisableProxy();
 }
