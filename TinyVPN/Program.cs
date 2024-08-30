@@ -19,10 +19,10 @@ var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json").Build();
 var setSystemProxy = bool.Parse(builder["system_proxy_on_start"]!);
-string urlTest = builder["system_proxy_on_start"]!;
+string urlTest = builder["url_test"]!;
 var inbounds = Inbound.CreateMixedInbound(
     listen:"127.0.0.1",
-    listenPort: 3080,
+    listenPort: 3081,
     setSystemProxy
     );
 Random rng = new();
