@@ -19,6 +19,7 @@ var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json").Build();
 var setSystemProxy = bool.Parse(builder["system_proxy_on_start"]!);
+string urlTest = builder["system_proxy_on_start"]!;
 var inbounds = Inbound.CreateMixedInbound(
     listen:"127.0.0.1",
     listenPort: 3080,
@@ -44,7 +45,7 @@ Console.WriteLine($"doing {counterProfile} test profiles");
 do
 {
     Console.WriteLine($"Start Test Profiles...");
-    profilesResults = profileTester!.UrlTestAsync(profiles.GetRange(index, counterProfile)).Result.ToList();
+    profilesResults = profileTester!.UrlTestAsync(profiles.GetRange(index, counterProfile),3000,urlTest:urlTest).Result.ToList();
     vpn.WriteTestResult(profilesResults);
     orderedProfiles = profilesResults.Where(p => p.Result!.Delay > 0).OrderBy(p => p.Result!.Delay).ToList();
     index += counterProfile;
