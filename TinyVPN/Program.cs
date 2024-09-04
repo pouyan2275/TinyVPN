@@ -7,7 +7,7 @@ using SingBoxLib.Parsing;
 using System.Diagnostics;
 
 //variables
-List<TestResult> profilesResults;
+IEnumerable<TestResult> profilesResults;
 int index, counterProfile;
 string url;
 List<TestResult> orderedProfiles;
@@ -19,10 +19,11 @@ var builder = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json").Build();
 var setSystemProxy = bool.Parse(builder["system_proxy_on_start"]!);
-string urlTest = builder["url_test"]!;
+string? urlTest = builder["url_test"] == string.Empty ? null : builder["url_test"];
+
 var inbounds = Inbound.CreateMixedInbound(
     listen:"127.0.0.1",
-    listenPort: 3081,
+    listenPort: 3080,
     setSystemProxy
     );
 Random rng = new();
@@ -36,22 +37,23 @@ url = builder["subscribe_url"]!;
 
 var singbox = new Tunnel(singboxPath, [inbounds]);
 
-List<ProfileItem> profiles = [.. vpn.TakeProfiles(url).OrderBy(x => rng.Next())];
+List<ProfileItem> profiles =  vpn.TakeProfiles(url).OrderBy(x => rng.Next()).ToList();
 
-if (counterProfile > profiles.Count)
-    counterProfile = profiles.Count;
+counterProfile = counterProfile > profiles.Count ? profiles.Count : counterProfile;
 index = 0;
 Console.WriteLine($"doing {counterProfile} test profiles");
+Console.WriteLine($"Start Test Profiles...");
 do
 {
-    Console.WriteLine($"Start Test Profiles...");
-    profilesResults = profileTester!.UrlTestAsync(profiles.GetRange(index, counterProfile),3000,urlTest:urlTest).Result.ToList();
-    vpn.WriteTestResult(profilesResults);
+    Console.WriteLine($"{index + counterProfile}/{profiles.Count}");
+
+    profilesResults = await profileTester!.UrlTestAsync(profiles.GetRange(index, counterProfile),urlTest:urlTest);
     orderedProfiles = profilesResults.Where(p => p.Result!.Delay > 0).OrderBy(p => p.Result!.Delay).ToList();
+
     index += counterProfile;
-    if (index > profiles.Count)
-        index = profiles.Count;
-} while (orderedProfiles.Count == 0 || index == profiles.Count);
+    counterProfile = profiles.Count < (index + counterProfile) ? profiles.Count - index : counterProfile;
+
+} while (orderedProfiles.Count == 0 && index != profiles.Count);
 
 if (orderedProfiles.Count == 0)
 {
@@ -73,7 +75,7 @@ Console.WriteLine($"Connected - {orderedProfiles[0].Profile.Name} - proxy is ena
 Console.CancelKeyPress += new ConsoleCancelEventHandler((e, s) => OnProcessExit(cts));
 AppDomain.CurrentDomain.ProcessExit += new EventHandler((s, e) => OnProcessExit(cts));
 
-singbox.StartAsync(orderedProfiles[0].Profile, cts);
+Task singBox = singbox.StartAsync(orderedProfiles[0].Profile, cts);
 while (true)
 {
     Console.WriteLine("Tip: \n" +

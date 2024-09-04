@@ -5,10 +5,12 @@ namespace Pouyan
 {
     public class Vpn
     { 
-        public void WriteTestResult(List<TestResult> profilesResults)
+        public void WriteTestResult(IEnumerable<TestResult> profilesResults)
         {
             Console.WriteLine("Test Result:");
-            profilesResults.ForEach(p => Console.WriteLine($"{p.Profile.Name} - Delay:{p.Result!.Delay}"));
+            foreach (TestResult result in profilesResults) {
+                Console.WriteLine($"{result.Profile.Name} - Delay:{result.Result!.Delay}");
+            }
         }
 
         public List<ProfileItem> TakeProfiles(string url)
