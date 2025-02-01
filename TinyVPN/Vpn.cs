@@ -42,7 +42,7 @@ namespace Pouyan
                 listen: "0.0.0.0",
                 listenPort: 3080,
 
-                setSystemProxy
+                false
                 );
             random = new();
 
@@ -57,7 +57,7 @@ namespace Pouyan
             Console.Title = "Connecting";
 
             var singbox = new Tunnel(singboxPath, [inbounds]);
-
+            
             List<ProfileItem> profiles = TakeProfiles(url).OrderBy(x => random.Next()).ToList();
 
             counterProfile = counterProfile > profiles.Count ? profiles.Count : counterProfile;
@@ -88,10 +88,16 @@ namespace Pouyan
             string titleMessage = $"Connected - {orderedProfiles[0].Profile.Name} - ";
             titleMessage = setSystemProxy ? titleMessage + "Enable" : titleMessage + "Disable";
             Console.Title = titleMessage;
+            if (setSystemProxy)
+            {
+                Pouyan.Network.Proxy.EnableProxy("127.0.0.1", 3080);
+            }
 
 
-            Console.WriteLine($"Connected - {orderedProfiles[0].Profile.Name} - proxy is enable");
-
+            Console.WriteLine($"Connected - {orderedProfiles[0].Profile.Name}" +
+                $"\n{orderedProfiles[0].Profile.Address}" +
+                $"\n{orderedProfiles[0].Profile.Port}" +
+                $"\n{orderedProfiles[0].Profile.Type?.ToString()}");
             Console.CancelKeyPress += new ConsoleCancelEventHandler((e, s) => OnProcessExit(_ct));
             AppDomain.CurrentDomain.ProcessExit += new EventHandler((s, e) => OnProcessExit(_ct));
 
