@@ -42,7 +42,7 @@ namespace Pouyan
                 listen: "0.0.0.0",
                 listenPort: 3080,
 
-                false
+                setSystemProxy
                 );
             random = new();
 
