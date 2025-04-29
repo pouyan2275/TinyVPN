@@ -39,7 +39,7 @@ namespace Pouyan
             url = builder?["subscribe_url"]!;
 
             inbounds = Inbound.CreateHttpInbound(
-                listen: "0.0.0.0",
+                listen: "127.0.0.1",
                 listenPort: 3080,
 
                 setSystemProxy
@@ -53,7 +53,7 @@ namespace Pouyan
             _ct = ct;
 
 
-            Console.WriteLine($"Http: *:{inbounds.ListenPort}");
+            Console.WriteLine($"Http: {inbounds.Listen}:{inbounds.ListenPort}");
             Console.Title = "Connecting";
 
             var singbox = new Tunnel(singboxPath, [inbounds]);
