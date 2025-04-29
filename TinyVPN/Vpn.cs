@@ -38,12 +38,7 @@ namespace Pouyan
             counterProfile = int.Parse(builder?["count_profile"]!);
             url = builder?["subscribe_url"]!;
 
-            inbounds = Inbound.CreateHttpInbound(
-                listen: "127.0.0.1",
-                listenPort: 3080,
-
-                setSystemProxy
-                );
+            inbounds = Inbound.CreateHttpInbound();
             random = new();
 
         }
